@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07080b">
+  <meta name="description" content="香港 Apple Store iPhone 到店取货库存监控">
+  <title>HK Pickup Radar</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">HK</span><span>Pickup Radar</span></div>
+      <a class="apple-link" href="https://www.apple.com/hk-zh/shop/buy-iphone/iphone-18-pro" target="_blank" rel="noreferrer">Apple 香港官网 ↗</a>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow"><span class="live-dot"></span>香港零售店云端监控</div>
+      <h1>等到你要的<br><span>iPhone 18 Pro Max</span></h1>
+      <p>只监控 1TB 冰川色与布根地红色。GitHub 云端约每 5 分钟检查一次，页面发现任意香港 Apple Store 可以到店取货时立即提醒。</p>
+    </section>
+
+    <section class="monitor-card" id="monitor-card">
+      <div>
+        <div class="monitor-status"><span class="pulse"></span><strong id="monitor-title">监控已暂停</strong></div>
+        <p id="monitor-subtitle">开启后会读取最新云端结果</p>
+      </div>
+      <button class="switch" id="toggle" role="switch" aria-checked="false"><span></span><b>开始</b></button>
+    </section>
+
+    <section class="toolbar" aria-label="监控设置">
+      <div class="interval-control"><span>页面读取频率</span><div class="segments">
+        <button data-seconds="30">30 秒</button><button data-seconds="60" class="active">1 分钟</button><button data-seconds="120">2 分钟</button>
+      </div></div>
+      <button class="notify-button" id="notify">开启有货通知</button>
+    </section>
+
+    <aside class="error-card hidden" id="error" role="alert"><span>状态提示</span><p></p><button id="retry">重新读取</button></aside>
+
+    <section class="results-head">
+      <div><span class="section-label">目标配置</span><h2 id="result-title">等待库存出现</h2></div>
+      <button class="refresh" id="refresh">立即读取 · 尚未检查</button>
+    </section>
+
+    <section class="target-grid" id="targets"></section>
+
+    <section class="order-note">
+      <div class="number">01</div>
+      <div><strong>先在 Apple 官方页准备好购物袋</strong><p>提前登录 Apple ID、加入目标机型并设置付款方式。有货提醒出现后打开 Apple 结账页，由 Apple 再次确认门店库存并由你完成最终付款。</p></div>
+      <a href="https://secure.store.apple.com/hk-zh/shop/checkout?_s=Fulfillment-init" target="_blank" rel="noreferrer">打开结账页</a>
+    </section>
+
+    <footer><span>非 Apple 官方工具 · 不保存账户或付款资料</span><span>库存以 Apple 结账页最终结果为准</span></footer>
+  </main>
+  <script src="app.js" defer></script>
+</body>
+</html>
