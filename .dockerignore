@@ -1,0 +1,11 @@
+.git
+.github
+.venv
+.wrangler
+dist
+node_modules
+outputs
+work
+*.log
+__pycache__
+*.pyc

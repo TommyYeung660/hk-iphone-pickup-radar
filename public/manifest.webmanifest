@@ -1,0 +1,9 @@
+{
+  "name": "HK Pickup Radar",
+  "short_name": "Pickup Radar",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07080b",
+  "theme_color": "#07080b",
+  "lang": "zh-CN"
+}
