@@ -41,10 +41,11 @@ jobs:
             echo "trigger=true" >> "$GITHUB_OUTPUT"
           fi
         id: stock
-      - name: Dispatch checkout (stock hit)
+      - name: Dispatch checkout + Bark (stock hit)
         if: steps.stock.outputs.trigger == 'true'
         env:
           GH_TOKEN: ${{ secrets.CHECKOUT_PAT }}
+          BARK_URL: ${{ secrets.BARK_URL }}
         run: |
           curl -sS -X POST \
             -H "Authorization: Bearer $GH_TOKEN" \
@@ -52,6 +53,13 @@ jobs:
             https://api.github.com/repos/TommyYeung660/buyip18-checkout/dispatches \
             -d '{"event_type":"stock-hit","client_payload":{"profile":"billy01","dry_run":"","store":""}}'
           echo "已觸發下單 workflow（available=${{ steps.stock.outputs.available }}）"
+          if [ -n "$BARK_URL" ]; then
+            T=$(python3 -c "import urllib.parse;print(urllib.parse.quote('iPhone 18 有貨—自動下單已觸發'))")
+            B=$(python3 -c "import urllib.parse;print(urllib.parse.quote('見雷達有貨，全鏈已派工'))")
+            curl -sS "${BARK_URL%/}/$T/$B?group=iPhone18&level=timeSensitive&sound=alarm" || true
+          else
+            echo "（BARK_URL 未設，跳過推送）"
+          fi
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
