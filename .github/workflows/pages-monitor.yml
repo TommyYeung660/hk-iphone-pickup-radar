@@ -33,7 +33,25 @@ jobs:
       - name: Check Apple Store stock
         env:
           APPLE_BROWSER_CHANNEL: ""
-        run: python agent/check_once.py site/stock.json
+        run: |
+          python agent/check_once.py site/stock.json | tee /tmp/summary.txt
+          AV=$(python3 -c "import json,sys; print(json.load(open('site/stock.json')).get('ok') and sum(int(t.get('available_count',0)) for t in json.load(open('site/stock.json'))['targets']))")
+          echo "available=$AV" >> "$GITHUB_OUTPUT"
+          if [ "$AV" != "0" ] && [ -n "$AV" ]; then
+            echo "trigger=true" >> "$GITHUB_OUTPUT"
+          fi
+        id: stock
+      - name: Dispatch checkout (stock hit)
+        if: steps.stock.outputs.trigger == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CHECKOUT_PAT }}
+        run: |
+          curl -sS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/TommyYeung660/buyip18-checkout/dispatches \
+            -d '{"event_type":"stock-hit","client_payload":{"profile":"billy01","dry_run":"false","store":""}}'
+          echo "已觸發下單 workflow（available=${{ steps.stock.outputs.available }}）"
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
