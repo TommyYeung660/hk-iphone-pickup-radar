@@ -50,7 +50,7 @@ jobs:
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/TommyYeung660/buyip18-checkout/dispatches \
-            -d '{"event_type":"stock-hit","client_payload":{"profile":"billy01","dry_run":"false","store":""}}'
+            -d '{"event_type":"stock-hit","client_payload":{"profile":"billy01","dry_run":"","store":""}}'
           echo "已觸發下單 workflow（available=${{ steps.stock.outputs.available }}）"
       - name: Configure Pages
         uses: actions/configure-pages@v5
