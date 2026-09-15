@@ -47,11 +47,23 @@ jobs:
           GH_TOKEN: ${{ secrets.CHECKOUT_PAT }}
           BARK_URL: ${{ secrets.BARK_URL }}
         run: |
+          # 帶上命中的 SKU + 門市（結帳頁店搜尋按袋內商品匹配——必須精準打擊）
+          HINT=$(python3 -c "
+          import json
+          d = json.load(open('site/stock.json'))
+          for t in d.get('targets', []):
+              if t.get('available_count', 0) > 0:
+                  st = [s['store_number'] for s in t.get('stores', []) if s.get('available')]
+                  print(t['sku'] + ':' + (st[0] if st else ''))
+                  break
+          ")
+          echo "命中: $HINT"
+          SKU="${HINT%%:*}"; STORE="${HINT##*:}"
           curl -sS -X POST \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/TommyYeung660/buyip18-checkout/dispatches \
-            -d '{"event_type":"stock-hit","client_payload":{"profile":"billy01","dry_run":"","store":""}}'
+            -d "{\"event_type\":\"stock-hit\",\"client_payload\":{\"profile\":\"billy01\",\"dry_run\":\"\",\"store\":\"$STORE\",\"sku\":\"$SKU\"}}"
           echo "已觸發下單 workflow（available=${{ steps.stock.outputs.available }}）"
           if [ -n "$BARK_URL" ]; then
             T=$(python3 -c "import urllib.parse;print(urllib.parse.quote('iPhone 18 有貨—自動下單已觸發'))")
