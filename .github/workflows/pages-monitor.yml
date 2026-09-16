@@ -59,6 +59,14 @@ jobs:
           ")
           echo "命中: $HINT"
           SKU="${HINT%%:*}"; STORE="${HINT##*:}"
+          # 共存防護：下單已在進行（掃描器或上輪派工）就不重複派工，避免 cancel 打斷活跑
+          N=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/TommyYeung660/buyip18-checkout/actions/runs?status=in_progress&per_page=1" \
+            | python3 -c "import json,sys;print(json.load(sys.stdin).get('total_count',0))")
+          if [ "$N" != "0" ]; then
+            echo "下單已在進行（$N）— 不重複派工"
+            exit 0
+          fi
           curl -sS -X POST \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
