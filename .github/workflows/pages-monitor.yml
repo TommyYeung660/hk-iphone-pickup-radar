@@ -35,9 +35,16 @@ jobs:
           APPLE_BROWSER_CHANNEL: ""
         run: |
           python agent/check_once.py site/stock.json | tee /tmp/summary.txt
-          AV=$(python3 -c "import json,sys; print(json.load(open('site/stock.json')).get('ok') and sum(int(t.get('available_count',0)) for t in json.load(open('site/stock.json'))['targets']))")
+          AV=$(python3 -c "
+          import json
+          d = json.load(open('site/stock.json'))
+          av = 0
+          if d.get('ok') is True:
+              av = sum(int(t.get('available_count', 0)) for t in d.get('targets', []))
+          print(av)
+          ")
           echo "available=$AV" >> "$GITHUB_OUTPUT"
-          if [ "$AV" != "0" ] && [ -n "$AV" ]; then
+          if [ "$AV" -gt 0 ]; then
             echo "trigger=true" >> "$GITHUB_OUTPUT"
           fi
         id: stock
@@ -53,7 +60,8 @@ jobs:
           d = json.load(open('site/stock.json'))
           for t in d.get('targets', []):
               if t.get('available_count', 0) > 0:
-                  st = [s['store_number'] for s in t.get('stores', []) if s.get('available')]
+                  # 結帳頁靠顯示名稱（Apple {店名}）點選，必須送店名而非店號
+                  st = [s['store_name'] for s in t.get('stores', []) if s.get('available')]
                   print(t['sku'] + ':' + (st[0] if st else ''))
                   break
           ")
