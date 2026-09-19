@@ -57,11 +57,11 @@ jobs:
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
         run: |
           # 帶上命中的 SKU + 門市（結帳頁店搜尋按袋內商品匹配——必須精準打擊）
-          # 9/19 用戶政策：只買 256GB（MJXQ4ZA/A 布根地紅/MJXR4ZA/A 冰川）——
-          # 雷達其他 SKU（512GB/1TB/2TB）命中只記錄，不派工不響鈴
+          # 9/19 用戶放寬：256GB+512GB 都買（布根地紅/冰川色 4 SKU）——
+          # 1TB/2TB 仍然只記錄，不派工不響鈴
           HINT=$(python3 -c "
           import json
-          BUY_ONLY = {'MJXQ4ZA/A', 'MJXR4ZA/A'}
+          BUY_ONLY = {'MJXQ4ZA/A', 'MJXR4ZA/A', 'MJXV4ZA/A', 'MJXW4ZA/A'}
           d = json.load(open('site/stock.json'))
           for t in d.get('targets', []):
               if t.get('available_count', 0) > 0 and t['sku'] in BUY_ONLY:
@@ -70,9 +70,9 @@ jobs:
                   print(t['sku'] + ':' + (st[0] if st else ''))
                   break
           ")
-          echo "命中: ${HINT:-（非 256GB SKU — 依政策不派工）}"
+          echo "命中: ${HINT:-（非 256/512GB SKU — 依政策不派工）}"
           if [ -z "$HINT" ]; then
-            echo "命中非 256GB SKU — 只買 256GB 政策跳過派工"
+            echo "命中非 256/512GB SKU — 政策跳過派工"
             exit 0
           fi
           SKU="${HINT%%:*}"; STORE="${HINT##*:}"
