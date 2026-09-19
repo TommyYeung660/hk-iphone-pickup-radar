@@ -57,17 +57,24 @@ jobs:
           PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
         run: |
           # 帶上命中的 SKU + 門市（結帳頁店搜尋按袋內商品匹配——必須精準打擊）
+          # 9/19 用戶政策：只買 256GB（MJXQ4ZA/A 布根地紅/MJXR4ZA/A 冰川）——
+          # 雷達其他 SKU（512GB/1TB/2TB）命中只記錄，不派工不響鈴
           HINT=$(python3 -c "
           import json
+          BUY_ONLY = {'MJXQ4ZA/A', 'MJXR4ZA/A'}
           d = json.load(open('site/stock.json'))
           for t in d.get('targets', []):
-              if t.get('available_count', 0) > 0:
+              if t.get('available_count', 0) > 0 and t['sku'] in BUY_ONLY:
                   # 結帳頁靠顯示名稱（Apple {店名}）點選，必須送店名而非店號
                   st = [s['store_name'] for s in t.get('stores', []) if s.get('available')]
                   print(t['sku'] + ':' + (st[0] if st else ''))
                   break
           ")
-          echo "命中: $HINT"
+          echo "命中: ${HINT:-（非 256GB SKU — 依政策不派工）}"
+          if [ -z "$HINT" ]; then
+            echo "命中非 256GB SKU — 只買 256GB 政策跳過派工"
+            exit 0
+          fi
           SKU="${HINT%%:*}"; STORE="${HINT##*:}"
           # 共存防護：下單已在進行（掃描器或上輪派工）就不重複派工，避免 cancel 打斷活跑
           N=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" \
